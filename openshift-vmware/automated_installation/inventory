@@ -1,0 +1,39 @@
+
+#create an OSEv3 group that contains the masters, nodes, nfs and etcd groups
+
+[OSEv3:children]
+masters
+nodes
+etcd
+nfs
+lb
+
+[OSEv3:vars]
+openshift_master_cluster_public_hostname=None
+openshift_master_default_subdomain=cloudapps.lab.example.com
+ansible_ssh_user=root
+openshift_master_cluster_hostname=None
+deployment_type=origin
+
+
+[masters]
+master_hostname openshift_public_hostname=master_hostname ansible_connection=local
+master1_hostname openshift_public_hostname=master1_hostname
+
+#host group for etcd
+[etcd]
+master_hostname openshift_public_hostname=master_hostname ansible_connection=local
+master1_hostname openshift_public_hostname=master1_hostname
+
+#host group for nodes, includes region info
+[nodes]
+master_hostname openshift_ip=master_ip openshift_public_hostname=master_hostname ansible_connection=local openshift_node_group_name='node-config-master-infra' 	
+master2_hostname openshift_ip=master2_ip openshift_public_hostname=master2_hostname openshift_node_group_name='node-config-master-infra'
+node_hostname openshift_ip=node_ip openshift_public_hostname=node_hostname openshift_node_group_name='node-config-compute'
+node_hostname2 openshift_ip=node_ip2 openshift_public_hostname=node_hostname2 openshift_node_group_name='node-config-compute'
+
+[lb]
+master_hostname openshift_public_hostname=master_hostname 
+
+[nfs]
+master_hostname openshift_public_hostname=master_hostname ansible_connection=local

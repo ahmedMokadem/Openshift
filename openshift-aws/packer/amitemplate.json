@@ -1,0 +1,37 @@
+{
+  "variables": {
+    "access_key": "{{env `aws_access_key`}}",
+    "secret_key": "{{env `aws_secret_key`}}",
+    "region": "eu-west-1"
+},
+
+"builders": [{
+    "type": "amazon-ebs",
+    "access_key": "{{user `aws_access_key`}}",
+    "secret_key": "{{user `aws_secret_key`}}",
+    "source_ami": "ami-09c6cf0663e53d6b4",
+    "instance_type": "t3.xlarge",
+    "ssh_username": "ec2-user",
+    "ami_name": "cp3-17-{{isotime | clean_ami_name}}",
+    "ami_description": "CP3 ansible packer AMI with Centos7 instance"
+   }],
+
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+          "sleep 30",
+          "sudo yum -y update",
+          "sudo yum -y install wget git net-tools bind-utils yum-utils iptables-services bridge-utils bash-completion kexec-tools sos psacct",
+          "sudo yum  -y install epel-release",
+          "sudo yum -y install ansible",
+          "sudo yum -y install vim",
+          "sudo yum -y install python-pip",
+          "sudo pip install ansible==2.6.4",
+          "sudo yum -y install docker-1.13.1",
+          "sudo yum -y update"
+      ]
+    }
+  ]
+}
+

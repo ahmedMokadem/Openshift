@@ -1,0 +1,28 @@
+---
+- hosts: 127.0.0.1
+  become: true
+  gather_facts: true
+  vars:
+    variable_to_be_replaced: ' kind: LDAPPasswordIdentityProvider'
+    variable_to_be_replaced2: ' attributes:'
+    variable_to_be_replaced3: 'id:'
+    variable_to_be_replaced4: '- dn'
+    variable_to_be_replaced5: 'email:'
+    variable_to_be_replaced6: '- mail'
+    variable_to_be_replaced7: 'name:'
+    variable_to_be_replaced8: '- cn'
+    variable_to_be_replaced9: 'preferredUsername:'
+    variable_to_be_replaced10: '- sAMAccountName'
+    variable_to_be_replaced11: 'bindDN: "CN=Internaltools,OU=_Service Accounts,OU=Office,OU=Corporate,DC=vistaprint,DC=net"'
+    variable_to_be_replaced12: 'bindPassword: "internaltools"'
+    variable_to_be_replaced13: 'insecure: true'
+    variable_to_be_replaced14: 'url: "ldap://ldap.vistaprint.net:389/OU=Office,OU=Corporate,DC=vistaprint,DC=net?sAMAccountName"'
+  tasks:
+  - name: run openshift prerequirements
+    command: ansible-playbook -vvv  -i /root/inventory openshift-ansible/playbooks/prerequisites.yml
+  - name: run openshift deploy
+    command: ansible-playbook -vvv  -i /root/inventory openshift-ansible/playbooks/deploy_cluster.yml
+
+  - name: Test jinja2template
+    template: src=ldapjinja2.j2 dest=/etc/master-config.yml
+

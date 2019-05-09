@@ -1,0 +1,18 @@
+### to test the webhook of the salt-master create a local repo in the openshift plateform 
+docker pull gitlab/gitlab-ee
+oc new-app gitlab/gitlab-ee
+### change expose the service of pod/gitlab and change the port service from 22->80 to access to the dashbord of gitlab
+oc expose svc gitlab-ee
+### Access to gitlab using the route
+### change password admin area 
+### create a user from the dashbord of gitlab 
+### allow the outbound requests in the gitlab admin area (root/<PASSWORD>)
+### login by the user, create new repository and import the salt-master from the vbustash
+### Now we deploy the salt<F4>master from the local repo 
+oc new-app https://gitlab-ee.cloudpps.lab.example.com/salt.git
+### the next step is the create the webhook in the local repo in Settings -> Integrations
+### the url of the generic webhook you will find in buildconfig of the salt-master
+oc describe bc/salt-master
+### finally you have to change the variable <secret> in the url by the value 
+oc edit bc/salt-master
+### test the webhook by modiying the dockerfile ! Done.

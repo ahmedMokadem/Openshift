@@ -1,0 +1,63 @@
+- hosts: localhost
+  tasks:
+   - name: Get master_1 Ip Address
+     shell: aws --output text --query "Reservations[0].Instances[0].PublicIpAddress" ec2 describe-instances --instance-ids `aws --output text --query "AutoScalingGroups[0].Instances[*].InstanceId" autoscaling describe-auto-scaling-groups --auto-scaling-group-names "Openshift Master"`
+     register:  master1ip
+
+   - name: Get master_2 Ip Address
+     shell: aws --output text --query "Reservations[1].Instances[0].PublicIpAddress" ec2 describe-instances --instance-ids `aws --output text --query "AutoScalingGroups[0].Instances[*].InstanceId" autoscaling describe-auto-scaling-groups --auto-scaling-group-names "Openshift Master"`
+     register:  master2ip
+
+   - name: Get master_3 Ip Address
+     shell: aws --output text --query "Reservations[2].Instances[0].PublicIpAddress" ec2 describe-instances --instance-ids `aws --output text --query "AutoScalingGroups[0].Instances[*].InstanceId" autoscaling describe-auto-scaling-groups --auto-scaling-group-names "Openshift Master"`
+     register:  master3ip
+
+   - name: Replace master_1 ip
+     replace:
+      path: /root/inventoryaws
+      regexp: 'master1_hostname'
+      replace: '{{ master1ip.stdout }}'
+
+   - name: Replace master_2 ip
+     replace:
+      path: /root/inventoryaws
+      regexp: 'master2_hostname'
+      replace: '{{ master2ip.stdout }}'
+
+   - name: Replace master_3 ip
+     replace:
+      path: /root/inventoryaws
+      regexp: 'master3_hostname'
+      replace: '{{ master3ip.stdout }}'
+
+   - name: Get node_1 ip
+     shell: aws --output text --query "Reservations[0].Instances[0].PublicIpAddress" ec2 describe-instances --instance-ids `aws --output text --query "AutoScalingGroups[0].Instances[*].InstanceId" autoscaling describe-auto-scaling-groups --auto-scaling-group-names "Openshift Node"`
+     register: node1ip
+
+   - name: Get node_2 ip
+     shell: aws --output text --query "Reservations[1].Instances[0].PublicIpAddress" ec2 describe-instances --instance-ids `aws --output text --query "AutoScalingGroups[0].Instances[*].InstanceId" autoscaling describe-auto-scaling-groups --auto-scaling-group-names "Openshift Node"`
+     register: node2ip
+
+   - name: Get node_3 ip
+     shell: aws --output text --query "Reservations[2].Instances[0].PublicIpAddress" ec2 describe-instances --instance-ids `aws --output text --query "AutoScalingGroups[0].Instances[*].InstanceId" autoscaling describe-auto-scaling-groups --auto-scaling-group-names "Openshift Node"`
+     register: node3ip
+
+   - name: Replace node_1 ip
+     replace:
+      path: /root/inventoryaws
+      regexp: 'node_hostname1'
+      replace: '{{ node1ip.stdout }}'
+
+   - name: Replace node_2 ip
+     replace:
+      path: /root/inventoryaws
+      regexp: 'node_hostname2'
+      replace: '{{ node2ip.stdout }}'
+
+   - name: Replace node_3 ip
+     replace:
+      path: /root/inventoryaws
+      regexp: 'node_hostname3'
+      replace: '{{ node3ip.stdout }}'
+
+

@@ -1,0 +1,19 @@
+#### deployment of grafana and prometheus using this commands
+oc project openshift-infra   
+oc adm policy add-cluster-role-to-user cluster-reader -z default 
+oc adm policy add-scc-to-user anyuid -z default  
+oc new-app grafana/grafana   
+oc new-app prom/prometheus   
+oc create -f https://raw.githubusercontent.com/debianmaster/openshift-examples/master/promethus/prom-configmap.yml 
+oc volume dc/prometheus --add --name=prom-k8s -m /etc/prometheus -t configmap --configmap-name=prom-k8s 
+
+#### Next login to the dashbord (admin:admin) of graphana and import grafana-dashboard.json
+http://grafana-openshift-infra.cloudapps.lab.example.com/dashboard
+#### Import the url of prometheus in the datasource of graphana
+http://prometheus-openshift-infra.cloudapps.lab.example.com
+
+### We should create a config map with all the prometheus scrape config and alerting rules, which will be mounted to the Prometheus container in /etc/prometheus as prometheus.yaml and prometheus.rules files
+oc volume dc/prometheus --add --name=prom-k8s -m /etc/prometheus -t configmap --configmap-name=prometheusconfig-map.yml
+### OR 
+kubectl create -f prometheusconfig-map.yml -n openshift-infra
+kubectl get deployments --namespace=openshift-infra

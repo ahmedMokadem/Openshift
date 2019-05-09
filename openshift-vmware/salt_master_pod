@@ -1,0 +1,43 @@
+piVersion: v1
+kind: Pod
+metadata:
+  name: salt-test
+spec:
+  containers:
+  - env:
+    - name: AWS_ACCESS_KEY_ID
+      value: AKIAJ56BAO4TY7F25NUA
+    - name: AWS_SECRET_ACCESS_KEY
+      value: 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
+    - name: AWS_DEFAULT_REGION
+      value: us-east-1
+    - name: MASTER_HOSTNAME
+      value: master
+    image: zaydoun/testrepo:salt-master
+    command: [ "/bin/bash", "-c", "--" ]
+    args: [ "while true; do sleep 30; done;" ]
+    imagePullPolicy: IfNotPresent
+    name: salt-test
+    ports:
+    - containerPort: 8080
+      protocol: TCP
+    resources:
+      limits:
+       cpu: 4000m
+       memory: 2000Mi
+      requests:
+       cpu: 200m
+       memory: 900Mi
+    securityContext:
+       capabilities: {}
+       privileged: false
+    volumeMounts:
+    - mountPath: /mnt/data
+      name: tmp
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+  serviceAccount: ""
+  volumes:
+  - emptyDir: {}
+    name: tmp
+

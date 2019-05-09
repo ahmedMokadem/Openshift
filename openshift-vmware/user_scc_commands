@@ -1,0 +1,23 @@
+#### create a user 
+htpasswd -c -b /etc/origin/master/htpasswd <USER> <MyPassword>
+
+###change the master config in the section "oauthConfig:" to use HTPasswdPasswordIdentityProvider 
+ file: /etc/origin/master/htpasswd
+ kind: HTPasswdPasswordIdentityProvider
+
+### login with the new user
+oc login -u <USER>
+
+#### create a new project
+oc new-project <PROJECT>
+
+oc adm policy add-cluster-role-to-user cluster-admin <USER>
+oc create serviceaccount <SVCACT> -n <PROJECT>
+oc adm policy add-scc-to-user privileged system:serviceaccount:<PROJECT>:<SVCACT>
+oc adm policy add-scc-to-group anyuid system:authenticated
+oc adm policy add-scc-to-group anyuid <USER>:authenticated
+oc adm policy add-scc-to-user anyuid system:serviceaccount:<PROJECT>:<SVCACT>
+oc adm policy add-scc-to-user privileged <USER>
+oc adm policy add-scc-to-user hostaccessnonroot <USER>
+oc adm policy add-scc-to-user hostaccess <USER>
+

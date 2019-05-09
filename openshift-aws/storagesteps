@@ -1,0 +1,16 @@
+sudo growpart /dev/nvme0n1 1
+
+sudo xfs_growfs  /dev/nvme0n1p1
+
+vim /etc/sysconfig/docker-storage-setup
+
+#### add this two line in the file
+DEVS=/dev/nvme1n1
+
+VG=docker-vg
+
+#### run the comand 
+docker-storage-setup
+sed -i -e "s/^enabled=1/enabled=0/" /etc/yum.repos.d/epel.repo
+
+yum -y --enablerepo=epel install pyOpenSSL

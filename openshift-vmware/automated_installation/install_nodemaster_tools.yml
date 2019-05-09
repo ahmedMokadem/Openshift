@@ -1,0 +1,307 @@
+---
+- hosts: 127.0.0.1
+  become: true
+  gather_facts: true
+  vars_prompt:
+  - name: "master_hostname"
+    prompt: " master hostname "
+  - name: "master2_hostname"
+    prompt: " master2 hostname "
+  - name: "master2_ip"
+    prompt: " master2 ip "
+  - name: "lb_hostname"
+    prompt: " lb hostname "
+  - name: "lbip"
+    prompt: " lb ip "
+  - name: "nodeip"
+    prompt: " node ip "
+  - name: "node_hostname"
+    prompt: " node hostname "
+  - name: "nodeip2"
+    prompt: " node ip2 "
+  - name: "node_hostname2"
+    prompt: " node hostname2 "
+  - name: "docker_disk"
+    prompt: " Name docker disk "
+
+
+  tasks:
+  - name: insert in ansible hosts
+    blockinfile:
+     path: /etc/ansible/hosts
+     block: |
+      [all]
+      {{ ansible_ens33.ipv4.address  }}
+      {{ master2_ip }}
+      {{ nodeip }}
+      {{ nodeip2 }}
+      {{ lbip }}
+      [all:vars]
+      ansible_connection=ssh
+      ansible_user=root
+      ansible_ssh_pass=openshift
+
+
+  - name: ssh
+    command: yum -y install openssh-server
+
+  - name: Defining hostname
+    command: hostnamectl set-hostname '{{ master_hostname }}'
+
+  - name: Ansible insert a line before example
+    lineinfile:
+     path: /etc/hosts
+     line: '{{ ansible_ens33.ipv4.address  }} {{ master_hostname }}'
+
+  - name: Ansible insert a line before example
+    lineinfile:
+     path: /etc/hosts
+     line: '{{ master2_ip }} {{ master2_hostname }}'
+
+  - name: Ansible insert a line before example
+    lineinfile:
+     path: /etc/hosts
+     line: '{{ nodeip }} {{ node_hostname }}'
+
+  - name: Ansible insert a line before example
+    lineinfile:
+     path: /etc/hosts
+     line: '{{ nodeip2 }} {{ node_hostname2 }}'
+
+  - name: Ansible insert a line before example
+    lineinfile:
+     path: /etc/hosts
+     line: '{{ lbip }} {{ lb_hostname }}'
+
+  - name: Generate /etc/ssh/ RSA host key
+    shell: ssh-keygen -b 2048 -t rsa -f /root/.ssh/id_rsa -q -N ""
+    args:
+     creates: /root/.ssh/id_rsa
+
+  - name: copie ssh key
+    command: ssh-copy-id -i ~/.ssh/id_rsa.pub '{{ master2_hostname }}'
+
+  - name: copie ssh key
+    command: ssh-copy-id -i ~/.ssh/id_rsa.pub '{{ node_hostname }}'
+
+  - name: copie ssh key
+    command: ssh-copy-id -i ~/.ssh/id_rsa.pub '{{ node_hostname2 }}'
+
+  - name: copie ssh key
+    command: ssh-copy-id -i ~/.ssh/id_rsa.pub '{{ lb_hostname }}'
+
+  - name: Defining hostname
+    command: ssh '{{ master2_ip }}' hostnamectl set-hostname '{{ master2_hostname }}'
+
+  - name: Defining hostname
+    command: ssh '{{ nodeip }}' hostnamectl set-hostname '{{ node_hostname }}'
+
+  - name: Defining hostname
+    command: ssh '{{ nodeip2 }}' hostnamectl set-hostname '{{ node_hostname2 }}'
+
+  - name: Defining hostname
+    command: ssh '{{ lbip }}' hostnamectl set-hostname '{{ lb_hostname }}'
+
+  - name: Replace master hostname
+    replace:
+     path: /root/inventory
+     regexp: 'master_hostname'
+     replace: '{{ master_hostname }}'
+
+  - name: Replace master ip
+    replace:
+     path: /root/inventory
+     regexp: 'master_ip'
+     replace: '{{ ansible_ens33.ipv4.address  }}'
+
+  - name: Replace master 2 hostname
+    replace:
+     path: /root/inventory
+     regexp: 'master2_hostname'
+     replace: '{{ master2_hostname }}'
+
+  - name: Replace master 2 ip
+    replace:
+     path: /root/inventory
+     regexp: 'master2_ip'
+     replace: '{{ master2_ip }}'
+
+  - name: Replace node hostname
+    replace:
+     path: /root/inventory
+     regexp: 'node_hostname'
+     replace: '{{ node_hostname }}'
+
+  - name: Replace node ip
+    replace:
+     path: /root/inventory
+     regexp: 'node_ip'
+     replace: '{{ nodeip }}'
+
+  - name: Replace node 2 hostname
+    replace:
+     path: /root/inventory
+     regexp: 'node_hostname2'
+     replace: '{{ node_hostname2 }}'
+
+  - name: Replace node 2 ip
+    replace:
+     path: /root/inventory
+     regexp: 'node_ip2'
+     replace: '{{ nodeip2 }}'
+
+  - name: Replace lb hostname
+    replace:
+     path: /root/inventory
+     regexp: 'lb_hostname'
+     replace: '{{ lb_hostname }}'
+
+  - name: Replace lb ip
+    replace:
+     path: /root/inventory
+     regexp: 'lb_ip'
+     replace: '{{ lbip }}'
+
+  - name: Replace ens33
+    replace:
+     path: /etc/sysconfig/network-scripts/ifcfg-ens33
+     regexp: 'ONBOOT=no'
+     replace: 'ONBOOT=yes'
+  
+  - name: Ansible insert a line before example
+    lineinfile:
+     path: /etc/sysconfig/network-scripts/ifcfg-ens33
+     line: 'IPADDR={{ ansible_ens33.ipv4.address  }}'
+     insertbefore: IPV4_FAILURE_FATAL=no
+
+  - name: copie hosts to node
+    command: scp /etc/hosts '{{ node_hostname }}':/etc/hosts
+
+  - name: copie hosts to node2
+    command: scp /etc/hosts '{{ node_hostname2 }}':/etc/hosts
+
+  - name: copie hosts to master
+    command: scp /etc/hosts '{{ master2_hostname }}':/etc/hosts
+
+  - name: copie hosts to master
+    command: scp /etc/hosts '{{ lb_hostname }}':/etc/hosts
+
+  - name: install utils
+    command: yum -y install wget git net-tools bind-utils yum-utils iptables-services bridge-utils bash-completion kexec-tools sos psacct
+
+  - name: install epel
+    command: yum -y install \https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+  - name: install docker
+    command: yum -y install docker-1.13.1
+
+  - name: docker setup disk
+    lineinfile:
+     path: /etc/sysconfig/docker-storage-setup
+     line: DEVS=/dev/{{ docker_disk }}
+
+  - name: docker setup VG
+    lineinfile:
+     path: /etc/sysconfig/docker-storage-setup
+     line: VG=docker-vg
+
+  - name: docker config storage
+    command: docker-storage-setup
+
+  - name: enable epel repo
+    command: sed -i -e "s/^enabled=1/enabled=0/" /etc/yum.repos.d/epel.repo
+
+  - name: install openssl
+    command: yum -y --enablerepo=epel install pyOpenSSL
+
+  - name: clone openshift project
+    command: git clone https://github.com/openshift/openshift-ansible
+
+#####################
+  - name: install utils master2
+    command: sshpass -p openshift ssh '{{ master2_ip }}' yum -y install wget git net-tools bind-utils yum-utils iptables-services bridge-utils bash-completion kexec-tools sos psacct
+
+  - name: epel master2
+    command: sshpass -p openshift ssh '{{ master2_ip }}' yum -y install \https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+  - name: enable epel master2
+    command: sshpass -p openshift ssh '{{ master2_ip }}' sed -i -e "s/^enabled=1/enabled=0/" /etc/yum.repos.d/epel.repo
+
+  - name: install openssl master2
+    command: sshpass -p openshift ssh '{{ master2_ip }}' yum -y --enablerepo=epel install pyOpenSSL
+
+  - name: install docker master2
+    command: sshpass -p openshift ssh '{{ master2_ip }}' yum -y install docker-1.13.1
+
+  - name: copie docker file to master2
+    command: scp /etc/sysconfig/docker-storage-setup '{{ master2_hostname }}':/etc/sysconfig/docker-storage-setup
+
+
+  - name: run docker storage master2
+    command: sshpass -p openshift ssh '{{ master2_ip }}' docker-storage-setup
+
+##################
+
+  - name: install utils node
+    command: sshpass -p openshift ssh '{{ nodeip }}' yum -y install wget git net-tools bind-utils yum-utils iptables-services bridge-utils bash-completion kexec-tools sos psacct
+
+  - name: epel node
+    command: sshpass -p openshift ssh '{{ nodeip }}' yum -y install \https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+  - name: enable epel node
+    command: sshpass -p openshift ssh '{{ nodeip }}' sed -i -e "s/^enabled=1/enabled=0/" /etc/yum.repos.d/epel.repo
+
+  - name: install openssl node
+    command: sshpass -p openshift ssh '{{ nodeip }}' yum -y --enablerepo=epel install pyOpenSSL
+
+  - name: install docker node
+    command: sshpass -p openshift ssh '{{ nodeip }}' yum -y install docker-1.13.1
+
+  - name: copie docker file to node
+    command: scp /etc/sysconfig/docker-storage-setup '{{ node_hostname }}':/etc/sysconfig/docker-storage-setup
+
+
+  - name: run docker storage node
+    command: sshpass -p openshift ssh '{{ nodeip }}' docker-storage-setup  
+
+######################
+
+  - name: install utils node2
+    command: sshpass -p openshift ssh '{{ nodeip2 }}' yum -y install wget git net-tools bind-utils yum-utils iptables-services bridge-utils bash-completion kexec-tools sos psacct
+
+  - name: epel node2
+    command: sshpass -p openshift ssh '{{ nodeip2 }}' yum -y install \https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+  - name: enable epel node2
+    command: sshpass -p openshift ssh '{{ nodeip2 }}' sed -i -e "s/^enabled=1/enabled=0/" /etc/yum.repos.d/epel.repo
+
+  - name: install openssl node2
+    command: sshpass -p openshift ssh '{{ nodeip2 }}' yum -y --enablerepo=epel install pyOpenSSL
+
+  - name: install docker node2
+    command: sshpass -p openshift ssh '{{ nodeip2 }}' yum -y install docker-1.13.1
+
+  - name: copie docker file to node2
+    command: scp /etc/sysconfig/docker-storage-setup '{{ node_hostname2 }}':/etc/sysconfig/docker-storage-setup
+
+  - name: run docker storage node2
+    command: sshpass -p openshift ssh '{{ nodeip2 }}' docker-storage-setup
+
+######################
+
+  - name: install utils lb
+    command: sshpass -p openshift ssh '{{ lbip }}' yum -y install wget git net-tools bind-utils yum-utils iptables-services bridge-utils bash-completion kexec-tools sos psacct
+
+  - name: epel lb
+    command: sshpass -p openshift ssh '{{ lbip }}' yum -y install \https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+  - name: enable epel lb
+    command: sshpass -p openshift ssh '{{ lbip }}' sed -i -e "s/^enabled=1/enabled=0/" /etc/yum.repos.d/epel.repo
+
+  - name: install openssl lb
+    command: sshpass -p openshift ssh '{{ lbip }}' yum -y --enablerepo=epel install pyOpenSSL
+
+  - name: update server
+    command: yum -y update
+
+
