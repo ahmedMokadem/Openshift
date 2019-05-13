@@ -3,7 +3,7 @@
 To deploy an openshift infrastructure with 3 masters(infra + etcd) , 3 nodes and Load balancing on local you will find the configuration of the automated installion in the folder openshift-aws 
 Clone the project and just run the playbook install_nodemaster_tools.yml under the folder automated_installation.
 The ldapjinja2.j2 is used to connect the openshift plateform with an LDAP server. 
-For the monitoring tools ( prometheus and graphana ) the configuration steps arez listed in monitoring_file. 
+For the monitoring tools ( prometheus and graphana ) the configuration steps are listed in monitoring_file. 
 
 
 # Openshift_AWS
