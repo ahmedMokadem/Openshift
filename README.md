@@ -12,7 +12,4 @@ Now for the deployment of openshift on top of aws :
  * the second is to to provision the infrastructure with the terraform script ( 3 masters , 3 nodes , 3 infra and ALB ).
  * Create an iam role and attach it to the instances to allow them to use the S3 service of AWS.
  * finally clone the repository and install the cluster.
-<<<<<<< HEAD
 
-=======
->>>>>>> 42d131c0f42ba3f086f8af52daa25999a482ad3f
