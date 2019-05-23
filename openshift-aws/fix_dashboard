@@ -1,0 +1,59 @@
+####### Configuration of the master host file  "/etc/origin/master/master-config.yaml" 
+...
+masterClients:
+  externalKubernetesClientConnectionOverrides:
+    acceptContentTypes: application/vnd.kubernetes.protobuf,application/json
+    burst: 400
+    contentType: application/vnd.kubernetes.protobuf
+    qps: 200
+  externalKubernetesKubeConfig: ''
+  openshiftLoopbackClientConnectionOverrides:
+    acceptContentTypes: application/vnd.kubernetes.protobuf,application/json
+    burst: 600
+    contentType: application/vnd.kubernetes.protobuf
+    qps: 300
+  openshiftLoopbackKubeConfig: openshift-master.kubeconfig
+masterPublicURL: http://oc-dashboard-352460936.eu-west-1.elb.amazonaws.com/
+...
+...
+oauthConfig:
+  assetPublicURL: http://oc-dashboard-352460936.eu-west-1.elb.amazonaws.com/console/
+  grantConfig:
+    method: auto
+  identityProviders:
+  - challenge: true
+    login: true
+    mappingMethod: claim
+    name: allow_all
+    provider:
+      apiVersion: v1
+      file: /etc/origin/master/openshift-htpasswd
+      kind: HTPasswdPasswordIdentityProvider
+  masterCA: ca-bundle.crt
+  masterPublicURL: http://oc-dashboard-352460936.eu-west-1.elb.amazonaws.com/
+  masterURL: http://oc-dashboard-352460936.eu-west-1.elb.amazonaws.com/console/
+...
+
+######### Problems faced during the configuration of openshift console 
+# Problem 1 : 502 error on webconsole
+# Solution : change masterURL from https://ip-10-55-77-118.eu-west-1.compute.internal:8443 to the mentioned one
+# Then restart api and controllers with these commands :
+/usr/bin/master-restart api  &&  /usr/bin/master-restart controllers    
+### and you must have 2 as printed result ( success )
+
+
+#problem 2 : erreur uri , return to console ( redirection )
+#solution with these commands and edit the redirects to the public URI
+oc edit oauthclient openshift-web-console 
+	
+	redirectURIs:
+	- http://oc-dashboard-352460936.eu-west-1.elb.amazonaws.com/console/
+	- http://oc-dashboard-352460936.eu-west-1.elb.amazonaws.com/
+
+oc get -o yaml configmap webconsole-config -n openshift-web-console > webconsole-config.yaml
+### updated the URI's in here to public URI's
+vim webconsole-config.yaml 
+oc apply -f webconsole-config.yaml  
+#### within this command the openshift-web-console pod will be updated and the error will be fixed
+
+

@@ -7,257 +7,44 @@ provider "aws" {
 
 ###ETCD security group
 
-resource "aws_security_group" "etcd-sg" {
-  name        = "allow_all_etcd"
-  description = "Allow Etcd Traffic"
-  vpc_id      = "vpc-06e55c08796123647"
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 2379
-    to_port     = 2379
-    protocol    = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-
+resource "aws_security_group" "security" {
+ name = "openshift-terraform-security"
+ vpc_id      = "vpc-06e55c08796123647"
+ egress {
+   from_port = 0
+   to_port = 0
+   protocol = "-1"
+   cidr_blocks = ["0.0.0.0/0"]
+ }
  ingress {
-    from_port   = 2380
-    to_port     = 2380
-    protocol    = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-}
-#Master security group
-
-resource "aws_security_group" "master-sg" {
-  name        = "allow_all_from_masters"
-  description = "Allow Master  Traffic"
-  vpc_id      = "vpc-06e55c08796123647"
-
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-
-  ingress {
-    from_port   = 8443
-    to_port     = 8443
-    protocol    = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 53
-    to_port     = 53
-    protocol    = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 53
-    to_port     = 53
-    protocol    = "UDP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 8053
-    to_port     = 8053
-    protocol    = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 8053
-    to_port     = 8053
-    protocol    = "UDP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-#node security group
-
-resource "aws_security_group" "node-sg" {
-  name        = "allow_all_nodes"
-  description = "Allow nodes TCP/UDP Traffic"
-  vpc_id      = "vpc-06e55c08796123647"
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 10250
-    to_port     = 10250
-    protocol    = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress {
-    from_port   = 4789
-    to_port     = 4789
-    protocol    = "UDP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+   from_port = 0
+   to_port = 0
+   protocol = "-1"
+   cidr_blocks = ["0.0.0.0/0"]
+ }
 }
 
-#infra security group
-
-resource "aws_security_group" "infra-sg" {
-  name        = "allow_all_infra"
-  description = "Allow infra TCP/UDP Traffic"
-  vpc_id      = "vpc-06e55c08796123647"
-
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
 
 #alc masters
 resource "aws_launch_configuration" "terraform-openshift-masters" {
  key_name               = "${aws_key_pair.generated.key_name}"
- image_id               = "ami-0c3c7cbc06d0fe061"
+ image_id               = "${var.ami}"
  iam_instance_profile   = "${aws_iam_instance_profile.ec2_profile.name}"
  instance_type          = "t3.xlarge"
- security_groups        = ["${aws_security_group.master-sg.id}","${aws_security_group.etcd-sg.id}"]
+ security_groups        = ["${aws_security_group.security.id}"]
  lifecycle {
    create_before_destroy = true
  }
+ root_block_device {
+    volume_type = "gp2"
+    volume_size = 60
+ }
+ ebs_block_device {
+      device_name = "/dev/sdb"
+      volume_size = "50"
+      volume_type = "gp2"
+      delete_on_termination = true
+  }
 }
 #auto scaling group
 resource "aws_autoscaling_group" "openshift-masters-asg" {
@@ -276,7 +63,7 @@ resource "aws_autoscaling_group" "openshift-masters-asg" {
 
 #alb asg attachement
 resource "aws_autoscaling_attachment" "asg_attachment" {
- autoscaling_group_name = "${aws_autoscaling_group.openshift-masters-asg.id}"
+ autoscaling_group_name = "${aws_autoscaling_group.openshift-master-asg.id}"
  alb_target_group_arn   = "${aws_alb_target_group.terraform-openshift-alb.arn}"
 }
 
@@ -285,12 +72,22 @@ resource "aws_autoscaling_attachment" "asg_attachment" {
 #alb asg nodes
 resource "aws_launch_configuration" "terraform-openshift-nodes" {
  key_name               = "${aws_key_pair.generated.key_name}"
- image_id               = "ami-0bde82cd082087c35"
+ image_id               = "${var.ami}"
  iam_instance_profile   = "${aws_iam_instance_profile.ec2_profile.name}"
  instance_type          = "t3.large"
- security_groups        = ["${aws_security_group.node-sg.id}"]
+ security_groups        = ["${aws_security_group.security.id}"]
  lifecycle {
    create_before_destroy = true
+ }
+ root_block_device {
+    volume_type = "gp2"
+    volume_size = 60
+ }
+ ebs_block_device {
+      device_name = "/dev/sdb"
+      volume_size = "50"
+      volume_type = "gp2"
+      delete_on_termination = true
  }
 }
 resource "aws_autoscaling_group" "openshift-node-asg" {
@@ -310,12 +107,22 @@ resource "aws_autoscaling_group" "openshift-node-asg" {
 #alb asg infra
 resource "aws_launch_configuration" "terraform-openshift-infra" {
  key_name               = "${aws_key_pair.generated.key_name}"
- image_id               = "ami-0bde82cd082087c35"
+ image_id               = "${var.ami}"
  iam_instance_profile   = "${aws_iam_instance_profile.ec2_profile.name}"
- instance_type          = "t2.medium"
- security_groups        = ["${aws_security_group.infra-sg.id}"]
+ instance_type          = "t3.large"
+ security_groups        = ["${aws_security_group.security.id}"]
  lifecycle {
    create_before_destroy = true
+ }
+ root_block_device {
+    volume_type = "gp2"
+    volume_size = 60
+ }
+ ebs_block_device {
+      device_name = "/dev/sdb"
+      volume_size = "50"
+      volume_type = "gp2"
+      delete_on_termination = true
  }
 }
 resource "aws_autoscaling_group" "openshift-infra-asg" {
@@ -330,6 +137,7 @@ resource "aws_autoscaling_group" "openshift-infra-asg" {
    value = "terraform-asg-infra"
    propagate_at_launch = true
  }
+
 }
 
 
@@ -338,25 +146,48 @@ resource "aws_autoscaling_group" "openshift-infra-asg" {
 #alb
 resource "aws_alb_target_group" "terraform-openshift-alb" {
   name     = "terraform-openshift-alb"
-  port     = 8443
+  port     = 80
   protocol = "HTTP"
   vpc_id   = "vpc-06e55c08796123647"
 }
 resource "aws_alb" "oc-terraform-alb" {
   name            = "oc-terraform-alb"
-  subnets         = ["subnet-0f9959d52c6baa920","subnet-0e0a18a03371102a9","subnet-0b85034db8a86b01e"]
-  security_groups = ["${aws_security_group.master-sg.id}"]
+  internal        = false
+  subnets         = ["subnet-031a4fe65c687a12d","subnet-003b64a619169a13f","subnet-04cac1f9e3ff65e0a"]
+  security_groups = ["${aws_security_group.lb_sg.id}"]
 }
 resource "aws_alb_listener" "front-end" {
   load_balancer_arn = "${aws_alb.oc-terraform-alb.id}"
-  port              = "8443"
+  port              = "80"
   protocol          = "HTTP"
   default_action {
     target_group_arn = "${aws_alb_target_group.terraform-openshift-alb.id}"
     type             = "forward"
   }
 }
+resource "aws_security_group" "lb_sg" {
+  description = "controls access to the application ELB"
 
+  vpc_id = "vpc-06e55c08796123647"
+  name   = "alb_security_group"
+
+  ingress {
+    protocol    = "tcp"
+    from_port   = 80
+    to_port     = 80
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+
+    cidr_blocks = [
+      "0.0.0.0/0",
+    ]
+  }
+}
 
 #keyyyyy
 resource "tls_private_key" "generated" {
@@ -377,4 +208,5 @@ resource "local_file" "private_key_pem" {
    command = "chmod a+rwx /home/storedkeys/KeYYYY.pem"
  }
 }
+
 

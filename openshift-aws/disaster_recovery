@@ -1,0 +1,90 @@
+### Set-up the disaster recovery plan Velero
+### Folder that contain velero files
+export VELERO_FOLDER=/opt/velero
+### Version of velero 
+export VELERO_VERSION=v0.11.0
+
+### After specifying the folder and the version we download and extract the .tat.gz file we execute the file 00-prereqs 
+wget https://github.com/heptio/velero/releases/download/$VELERO_VERSION/velero-$VELERO_VERSION-linux-amd64.tar.gz
+mkdir -p $VELERO_FOLDER
+tar -xzvf velero-$VELERO_VERSION-linux-amd64.tar.gz -C $VELERO_FOLDER
+mv $VELERO_FOLDER/velero /usr/bin
+chmod +x /usr/bin/velero
+oc apply -f $VELERO_FOLDER/config/common/00-prereqs.yaml
+
+### Now we create the S3 bucket
+aws s3api create-bucket --bucket velero-bucket --region us-east-1  
+### create the iam user 
+aws iam create-user —user-name velero
+
+### Next step is to attach the iam user to the bucket created before using this json file 
+{
+     "Version": "2012-10-17",
+     "Statement": [
+         {
+             "Effect": "Allow",
+             "Action": [
+                 "ec2:DescribeVolumes",
+                 "ec2:DescribeSnapshots",
+                 "ec2:CreateTags",
+                 "ec2:CreateVolume",
+                 "ec2:CreateSnapshot",
+                 "ec2:DeleteSnapshot"
+             ],
+             "Resource": "*"
+         },
+         {
+             "Effect": "Allow",
+             "Action": [
+                 "s3:GetObject",
+                 "s3:DeleteObject",
+                 "s3:PutObject",
+                 "s3:AbortMultipartUpload",
+                 "s3:ListMultipartUploadParts"
+             ],
+             "Resource": [
+                 "arn:aws:s3:::velero-bucket/*"
+             ]
+         },
+         {
+             "Effect": "Allow",
+             "Action": [
+                 "s3:ListBucket"
+             ],
+             "Resource": [
+                 "arn:aws:s3:::velero-bucket"
+             ]
+         }
+     ]
+ }
+
+##### Now we create the access key that must return an output of the key created  
+aws iam create-access-key — user-name velero
+
+##### Create a file for the credentials of velero using the access key and the secret generated before
+[default]
+aws_access_key_id=<AWS_ACCESS_KEY_ID>
+aws_secret_access_key=<AWS_SECRET_ACCESS_KEY>
+
+##### Next we created the OC secret 
+kubectl create secret generic cloud-credentials --namespace velero --from-file cloud=credentials-velero
+
+#### Now we move to the configuration of S3 on aws by modifying two files
+#### In config/aws/05-backupstoragelocation.yaml change <YOUR_BUCKET> with velero-bucket 
+#### change <YOUR_REGION> with eu-west-1
+#### The second file is config/aws/06-volumesnapshotlocation.yaml 
+#### just replace <YOUR_REGION>with us-east-1
+
+#### finally for the installation of velero server just run this files
+oc apply -f config/aws/05-backupstoragelocation.yaml
+oc apply -f config/aws/06-volumesnapshotlocation.yaml
+oc apply -f config/aws/10-deployment.yaml
+
+#### to verifie we run 
+oc get pods --namespace velero
+
+#### For example create a backup for the namespace salt
+velero backup create salt namespace salt
+#### Than we delete the project salt
+#### To restore the project salt delete
+velero restore salt create --from-backup salt
