@@ -13,8 +13,8 @@
     variable_to_be_replaced8: '- cn'
     variable_to_be_replaced9: 'preferredUsername:'
     variable_to_be_replaced10: '- sAMAccountName'
-    variable_to_be_replaced11: 'bindDN: "CN=Internaltools,OU=_Service Accounts,OU=Office,OU=Corporate,DC=vistaprint,DC=net"'
-    variable_to_be_replaced12: 'bindPassword: "internaltools"'
+    variable_to_be_replaced11: 'bindDN: "CN=***,OU=****,OU=****,OU=****,DC=****,DC=*****"'
+    variable_to_be_replaced12: 'bindPassword: "******"'
     variable_to_be_replaced13: 'insecure: true'
     variable_to_be_replaced14: 'url: "ldap://ldap.vistaprint.net:389/OU=Office,OU=Corporate,DC=vistaprint,DC=net?sAMAccountName"'
   tasks:
