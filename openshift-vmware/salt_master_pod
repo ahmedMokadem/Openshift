@@ -6,13 +6,13 @@ spec:
   containers:
   - env:
     - name: AWS_ACCESS_KEY_ID
-      value: AKIAJ56BAO4TY7F25NUA
+      value: ******
     - name: AWS_SECRET_ACCESS_KEY
-      value: 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
+      value: *****
     - name: AWS_DEFAULT_REGION
-      value: us-east-1
+      value: *****
     - name: MASTER_HOSTNAME
-      value: master
+      value: ******
     image: zaydoun/testrepo:salt-master
     command: [ "/bin/bash", "-c", "--" ]
     args: [ "while true; do sleep 30; done;" ]
